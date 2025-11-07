@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <style>
+        .low-contrast {
+            color: #aaa;
+            background-color: #fff;
+        }
+        .hidden-focus {
+            outline: none;
+        }
+        .tiny-text {
+            font-size: 8px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 1. Missing page language -->
+
+    <!-- 2. Empty page title -->
+
+    <!-- 3. Missing alt text on images -->
+    <img src="logo.png">
+    <img src="banner.jpg" alt="">
+
+    <!-- 4. Non-descriptive link text -->
+    <a href="page.html">Click here</a>
+    <a href="info.html">Read more</a>
+
+    <!-- 5. Missing form labels -->
+    <form>
+        <input type="text" name="username">
+        <input type="email" name="email">
+        <input type="password" name="password">
+        <button type="submit">Submit</button>
+    </form>
+
+    <!-- 6. Incorrect heading hierarchy -->
+    <h1>Main Title</h1>
+    <h3>Skipped H2</h3>
+    <h5>Skipped H4</h5>
+
+    <!-- 7. Low color contrast -->
+    <p class="low-contrast">This text has poor contrast ratio</p>
+
+    <!-- 8. Missing button text -->
+    <button></button>
+    <button><img src="icon.png"></button>
+
+    <!-- 9. Table without headers -->
+    <table>
+        <tr>
+            <td>Name</td>
+            <td>Age</td>
+            <td>City</td>
+        </tr>
+        <tr>
+            <td>John</td>
+            <td>30</td>
+            <td>NYC</td>
+        </tr>
+    </table>
+
+    <!-- 10. Removed focus outline -->
+    <a href="#" class="hidden-focus">Link without focus indicator</a>
+
+    <!-- 11. Tiny text size -->
+    <p class="tiny-text">This text is too small to read</p>
+
+    <!-- 12. Div used as button without proper ARIA -->
+    <div onclick="doSomething()">Click me</div>
+
+    <!-- 13. Missing fieldset/legend for radio buttons -->
+    <input type="radio" name="option" value="1"> Option 1
+    <input type="radio" name="option" value="2"> Option 2
+
+    <!-- 14. Iframe without title -->
+    <iframe src="content.html"></iframe>
+
+    <!-- 15. Redundant link text -->
+    <a href="products.html">Products</a>
+    <a href="products.html">Products</a>
+
+    <!-- 16. Empty heading -->
+    <h2></h2>
+
+    <!-- 17. Missing autocomplete on input fields -->
+    <form>
+        <label for="name">Full Name:</label>
+        <input type="text" id="name" name="fullname">
+
+        <label for="card">Credit Card:</label>
+        <input type="text" id="card" name="cardnumber">
+    </form>
+
+    <!-- 18. Positive tabindex -->
+    <button tabindex="5">Bad Tab Order</button>
+    <button tabindex="3">Confusing Navigation</button>
+
+    <!-- 19. Using color alone to convey information -->
+    <p>Required fields are shown in <span style="color: red;">red</span></p>
+
+    <!-- 20. Missing lang attribute on foreign language content -->
+    <p>Bonjour, comment allez-vous?</p>
+
+    <!-- 21. Duplicate IDs -->
+    <div id="content">First div</div>
+    <div id="content">Second div</div>
+
+    <!-- 22. Video without captions/transcript -->
+    <video src="tutorial.mp4" controls></video>
+
+    <!-- 23. Audio without transcript -->
+    <audio src="podcast.mp3" controls></audio>
+
+    <!-- 24. Marquee/blink elements -->
+    <marquee>This scrolling text is problematic</marquee>
+
+    <!-- 25. Missing required attribute indication -->
+    <form>
+        <label for="email2">Email:</label>
+        <input type="email" id="email2" required>
+    </form>
+
+    <!-- 26. Incorrect ARIA usage -->
+    <div role="button" aria-pressed="yes">Toggle</div>
+
+    <!-- 27. Link opening in new window without warning -->
+    <a href="external.html" target="_blank">External Link</a>
+
+    <!-- 28. Non-semantic markup for navigation -->
+    <div>
+        <a href="home.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+    </div>
+
+    <!-- 29. Missing main landmark -->
+    <!-- No <main> element in document -->
+
+    <!-- 30. Placeholder used as label -->
+    <input type="text" placeholder="Enter your name">
+
+</body>
+</html>

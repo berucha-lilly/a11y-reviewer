@@ -1,0 +1,676 @@
+/* accessibility-violations.css */
+/* This file demonstrates various accessibility violations in CSS */
+
+/* ============================================
+   VIOLATION 1: Removing focus indicators
+   ============================================ */
+.no-focus-outline *:focus,
+.no-focus-outline *:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+button:focus,
+a:focus,
+input:focus {
+  outline: 0; /* Major accessibility violation */
+}
+
+/* ============================================
+   VIOLATION 2: Low color contrast
+   ============================================ */
+.low-contrast-text {
+  color: #aaa;
+  background-color: #fff;
+  /* Contrast ratio: 2.32:1 - Fails WCAG AA (requires 4.5:1) */
+}
+
+.low-contrast-button {
+  color: #ccc;
+  background-color: #ddd;
+  border: none;
+  /* Contrast ratio: 1.24:1 - Severe violation */
+}
+
+.gray-on-gray {
+  color: #777;
+  background-color: #999;
+  /* Contrast ratio: 1.85:1 - Fails WCAG */
+}
+
+.light-blue-text {
+  color: #89CFF0;
+  background-color: #ffffff;
+  /* Contrast ratio: 1.89:1 - Fails WCAG AA */
+}
+
+/* ============================================
+   VIOLATION 3: Text too small
+   ============================================ */
+.tiny-text {
+  font-size: 8px;
+  /* Below minimum readable size */
+}
+
+.micro-text {
+  font-size: 6px;
+  line-height: 8px;
+  /* Extremely difficult to read */
+}
+
+/* ============================================
+   VIOLATION 4: Hidden content issues
+   ============================================ */
+.visually-hidden-wrong {
+  display: none;
+  /* Hides from screen readers - should use clip method instead */
+}
+
+.visibility-hidden-wrong {
+  visibility: hidden;
+  /* Also hides from screen readers when it shouldn't */
+}
+
+.opacity-zero-wrong {
+  opacity: 0;
+  /* Content invisible but still takes up space and can be confusing */
+}
+
+/* ============================================
+   VIOLATION 5: Color-only information
+   ============================================ */
+.error-field {
+  border-color: red;
+  /* Only uses color to indicate error - no icon or text */
+}
+
+.required-field {
+  color: red;
+  /* Only color indicates required field */
+}
+
+.success-message {
+  color: green;
+  /* Color-only success indication */
+}
+
+.warning-text {
+  color: orange;
+  /* No additional visual indicator */
+}
+
+/* ============================================
+   VIOLATION 6: Insufficient spacing/touch targets
+   ============================================ */
+.tiny-button {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  /* Below WCAG 2.5.5 minimum 44x44px touch target */
+}
+
+.cramped-links a {
+  display: inline;
+  padding: 2px;
+  margin: 0;
+  /* Links too close together for touch/motor impairments */
+}
+
+/* ============================================
+   VIOLATION 7: Text over images without sufficient contrast
+   ============================================ */
+.text-over-image {
+  background-image: url('background.jpg');
+  color: white;
+  /* No background overlay to ensure contrast */
+}
+
+.hero-text {
+  position: absolute;
+  color: #fff;
+  text-shadow: none;
+  /* White text on potentially light background */
+}
+
+/* ============================================
+   VIOLATION 8: Fixed positioning that blocks content
+   ============================================ */
+.fixed-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100px;
+  z-index: 9999;
+  /* Can block content and skip links */
+}
+
+.sticky-footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  height: 80px;
+  /* Reduces available viewport */
+}
+
+/* ============================================
+   VIOLATION 9: Animations without respect for prefers-reduced-motion
+   ============================================ */
+.spinning-element {
+  animation: spin 2s linear infinite;
+  /* No @media (prefers-reduced-motion) consideration */
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.flashing-text {
+  animation: flash 0.5s infinite;
+  /* Can trigger seizures - violates WCAG 2.3.1 */
+}
+
+@keyframes flash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.parallax-scroll {
+  transform: translateZ(0);
+  transition: transform 0.5s ease-out;
+  /* Can cause motion sickness */
+}
+
+/* ============================================
+   VIOLATION 10: Hover-only interactions
+   ============================================ */
+.dropdown-menu {
+  display: none;
+}
+
+.dropdown:hover .dropdown-menu {
+  display: block;
+  /* Only accessible via hover, not keyboard */
+}
+
+.tooltip {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.has-tooltip:hover .tooltip {
+  opacity: 1;
+  /* Tooltip only on hover, not on focus */
+}
+
+/* ============================================
+   VIOLATION 11: Justified text
+   ============================================ */
+.justified-text {
+  text-align: justify;
+  /* Creates uneven spacing, difficult for dyslexic users */
+}
+
+/* ============================================
+   VIOLATION 12: All caps text
+   ============================================ */
+.all-caps {
+  text-transform: uppercase;
+  /* Harder to read, especially for dyslexic users */
+  letter-spacing: 0;
+}
+
+/* ============================================
+   VIOLATION 13: Insufficient line height
+   ============================================ */
+.cramped-lines {
+  line-height: 1;
+  /* Too tight, difficult to read */
+}
+
+.dense-paragraph {
+  line-height: 1.1;
+  font-size: 16px;
+  /* Below WCAG recommendation of 1.5 */
+}
+
+/* ============================================
+   VIOLATION 14: Insufficient line length
+   ============================================ */
+.too-wide-text {
+  max-width: none;
+  /* Lines can be 200+ characters, hard to track */
+}
+
+.narrow-column {
+  max-width: 20ch;
+  /* Too narrow, causes excessive line breaks */
+}
+
+/* ============================================
+   VIOLATION 15: Custom scrollbars that are too small
+   ============================================ */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+  /* Too small to grab easily */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #ccc;
+  /* Low contrast with track */
+}
+
+/* ============================================
+   VIOLATION 16: Disabled elements with poor styling
+   ============================================ */
+.disabled-button {
+  opacity: 0.3;
+  cursor: not-allowed;
+  /* Too faint, unclear if disabled */
+}
+
+input:disabled {
+  background-color: #f9f9f9;
+  color: #ddd;
+  /* Insufficient contrast for disabled state */
+}
+
+/* ============================================
+   VIOLATION 17: Links that don't look like links
+   ============================================ */
+.stealth-link {
+  color: inherit;
+  text-decoration: none;
+  cursor: default;
+  /* Indistinguishable from regular text */
+}
+
+a {
+  color: #333;
+  text-decoration: none;
+  /* Links look like regular text */
+}
+
+/* ============================================
+   VIOLATION 18: Form inputs without visible labels
+   ============================================ */
+.floating-label {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  transform: translateY(-50%);
+  pointer-events: none;
+  transition: all 0.3s;
+  /* Label disappears or moves, can be confusing */
+}
+
+input:focus + .floating-label,
+input:not(:placeholder-shown) + .floating-label {
+  top: -10px;
+  font-size: 12px;
+}
+
+/* ============================================
+   VIOLATION 19: Placeholder as label
+   ============================================ */
+input::placeholder {
+  color: #999;
+  /* Placeholder used instead of label */
+}
+
+/* ============================================
+   VIOLATION 20: Content that requires horizontal scrolling
+   ============================================ */
+.horizontal-scroll {
+  overflow-x: scroll;
+  white-space: nowrap;
+  /* Forces horizontal scrolling */
+}
+
+.wide-table {
+  min-width: 2000px;
+  /* Doesn't respond to viewport */
+}
+
+/* ============================================
+   VIOLATION 21: Fixed width in pixels
+   ============================================ */
+.fixed-width-container {
+  width: 1200px;
+  /* Doesn't scale with zoom or font size */
+}
+
+.pixel-font {
+  font-size: 14px;
+  /* Should use rem or em for scalability */
+}
+
+/* ============================================
+   VIOLATION 22: Absolute positioning that breaks layout
+   ============================================ */
+.absolute-content {
+  position: absolute;
+  top: 100px;
+  left: 50px;
+  /* Can overlap other content */
+}
+
+/* ============================================
+   VIOLATION 23: Z-index wars
+   ============================================ */
+.modal-backdrop {
+  z-index: 999999;
+  /* Excessive z-index can cause stacking issues */
+}
+
+.dropdown-layer {
+  z-index: 9999999;
+  /* Even higher, creates accessibility issues */
+}
+
+/* ============================================
+   VIOLATION 24: Negative text indent for image replacement
+   ============================================ */
+.image-replacement {
+  text-indent: -9999px;
+  overflow: hidden;
+  /* Hides text from screen readers */
+}
+
+/* ============================================
+   VIOLATION 25: Content generated with ::before/::after
+   ============================================ */
+.icon-before::before {
+  content: "⚠";
+  /* Important content in pseudo-element, not accessible */
+}
+
+.required-indicator::after {
+  content: " *";
+  color: red;
+  /* Required indicator not announced to screen readers */
+}
+
+/* ============================================
+   VIOLATION 26: Clipping content
+   ============================================ */
+.clipped-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  /* Content cut off without way to access it */
+}
+
+.max-height-clip {
+  max-height: 100px;
+  overflow: hidden;
+  /* Content hidden without indication */
+}
+
+/* ============================================
+   VIOLATION 27: Transparent text
+   ============================================ */
+.transparent-text {
+  color: transparent;
+  /* Text invisible but still in DOM */
+}
+
+.zero-opacity-text {
+  opacity: 0;
+  /* Similar issue */
+}
+
+/* ============================================
+   VIOLATION 28: Custom focus styles that are insufficient
+   ============================================ */
+button:focus {
+  outline: 1px dotted #ccc;
+  /* Too subtle, low contrast */
+}
+
+a:focus {
+  outline: 1px solid rgba(0, 0, 0, 0.1);
+  /* Nearly invisible */
+}
+
+/* ============================================
+   VIOLATION 29: Viewport units causing zoom issues
+   ============================================ */
+.viewport-text {
+  font-size: 2vw;
+  /* Doesn't respect user zoom settings */
+}
+
+.full-viewport {
+  height: 100vh;
+  /* Can cause issues with mobile browsers */
+}
+
+/* ============================================
+   VIOLATION 30: Pointer-events: none on interactive elements
+   ============================================ */
+.no-pointer-events {
+  pointer-events: none;
+  /* Makes element unclickable */
+}
+
+button.disabled-wrong {
+  pointer-events: none;
+  opacity: 0.5;
+  /* Disabled via CSS instead of HTML attribute */
+}
+
+/* ============================================
+   VIOLATION 31: Transforms that break accessibility
+   ============================================ */
+.rotated-text {
+  transform: rotate(-90deg);
+  /* Can be difficult to read */
+}
+
+.scaled-down {
+  transform: scale(0.5);
+  /* Makes content too small */
+}
+
+/* ============================================
+   VIOLATION 32: Background images for content
+   ============================================ */
+.background-content {
+  background-image: url('important-info.png');
+  width: 300px;
+  height: 200px;
+  /* Content in background image, no alt text possible */
+}
+
+/* ============================================
+   VIOLATION 33: Cursor changes that mislead
+   ============================================ */
+.fake-disabled {
+  cursor: not-allowed;
+  /* Looks disabled but isn't */
+}
+
+.fake-link {
+  cursor: pointer;
+  /* Not actually a link or button */
+}
+
+/* ============================================
+   VIOLATION 34: Margin/padding that creates dead zones
+   ============================================ */
+.large-dead-zone {
+  padding: 100px;
+  /* Excessive padding creates confusing layout */
+}
+
+/* ============================================
+   VIOLATION 35: Float layouts without clearing
+   ============================================ */
+.float-left {
+  float: left;
+  /* Can cause layout issues and reading order problems */
+}
+
+/* ============================================
+   VIOLATION 36: Negative margins
+   ============================================ */
+.negative-margin {
+  margin-top: -50px;
+  /* Can cause overlapping content */
+}
+
+/* ============================================
+   VIOLATION 37: !important overuse
+   ============================================ */
+.forced-style {
+  color: red !important;
+  font-size: 10px !important;
+  /* Prevents user stylesheets from working */
+}
+
+/* ============================================
+   VIOLATION 38: Print styles that hide content
+   ============================================ */
+@media print {
+  .no-print {
+    display: none;
+    /* Important content hidden when printing */
+  }
+}
+
+/* ============================================
+   VIOLATION 39: Responsive design breakpoints that exclude users
+   ============================================ */
+@media (max-width: 768px) {
+  .desktop-only {
+    display: none;
+    /* Content hidden on mobile */
+  }
+}
+
+@media (min-width: 1200px) {
+  .mobile-only {
+    display: none;
+    /* Content hidden on desktop */
+  }
+}
+
+/* ============================================
+   VIOLATION 40: Aspect ratio boxes that break with zoom
+   ============================================ */
+.aspect-ratio-box {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%;
+  /* 16:9 aspect ratio */
+  overflow: hidden;
+}
+
+.aspect-ratio-box > * {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* Can cause issues with text scaling */
+}
+
+/* ============================================
+   CORRECT IMPLEMENTATIONS (for reference)
+   ============================================ */
+
+/* Correct: Visually hidden but accessible to screen readers */
+.visually-hidden-correct {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Correct: Focus indicator */
+.good-focus:focus {
+  outline: 3px solid #4A90E2;
+  outline-offset: 2px;
+}
+
+/* Correct: Respecting reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Correct: High contrast mode support */
+@media (prefers-contrast: high) {
+  .high-contrast-text {
+    color: #000;
+    background-color: #fff;
+    border: 2px solid #000;
+  }
+}
+
+/* Correct: Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .dark-mode-text {
+    color: #fff;
+    background-color: #1a1a1a;
+  }
+}
+
+/* Correct: Accessible button sizing */
+.accessible-button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 12px 24px;
+  /* Meets WCAG 2.5.5 target size */
+}
+
+/* Correct: Good contrast */
+.good-contrast {
+  color: #000;
+  background-color: #fff;
+  /* Contrast ratio: 21:1 */
+}
+
+/* Correct: Readable line height */
+.readable-text {
+  line-height: 1.5;
+  max-width: 70ch;
+  /* Optimal reading width */
+}
+
+/* Correct: Skip link */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: #000;
+  color: #fff;
+  padding: 8px;
+  text-decoration: none;
+  z-index: 100;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* Correct: Focus visible for keyboard users only */
+.focus-visible-only:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.focus-visible-only:focus-visible {
+  outline: 3px solid #4A90E2;
+  outline-offset: 2px;
+}

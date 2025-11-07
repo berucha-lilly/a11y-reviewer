@@ -1,0 +1,1179 @@
+// accessibility-violations.scss
+// This file demonstrates various accessibility violations in SCSS/Sass
+
+// ============================================
+// Variables (some with accessibility issues)
+// ============================================
+
+// VIOLATION: Low contrast color palette
+$color-primary: #aaa;
+$color-secondary: #ccc;
+$color-background: #fff;
+$color-text-light: #ddd;
+$color-error: #ff6b6b; // Might have contrast issues on white
+
+// VIOLATION: Font sizes too small
+$font-size-tiny: 8px;
+$font-size-micro: 10px;
+$font-size-small: 11px;
+
+// VIOLATION: Insufficient spacing
+$spacing-tiny: 2px;
+$spacing-small: 4px;
+
+// VIOLATION: Touch targets too small
+$button-size-small: 20px;
+$icon-size: 16px;
+
+// ============================================
+// Mixins with Accessibility Issues
+// ============================================
+
+// VIOLATION: Mixin that removes focus indicators
+@mixin no-focus {
+  &:focus,
+  &:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+}
+
+// VIOLATION: Mixin for low contrast text
+@mixin low-contrast-text($opacity: 0.5) {
+  color: rgba(0, 0, 0, $opacity);
+  // No consideration for background color
+}
+
+// VIOLATION: Mixin that hides content incorrectly
+@mixin hide-content {
+  display: none; // Hides from screen readers
+}
+
+// VIOLATION: Mixin for hover-only interactions
+@mixin hover-only-dropdown {
+  .dropdown-menu {
+    display: none;
+  }
+
+  &:hover .dropdown-menu {
+    display: block;
+    // No keyboard access
+  }
+}
+
+// VIOLATION: Animation without reduced motion support
+@mixin animate-spin($duration: 2s) {
+  animation: spin $duration linear infinite;
+  // No @media (prefers-reduced-motion) check
+}
+
+// VIOLATION: Truncate text without accessible alternative
+@mixin truncate-text($lines: 1) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  @if $lines == 1 {
+    white-space: nowrap;
+  } @else {
+    display: -webkit-box;
+    -webkit-line-clamp: $lines;
+    -webkit-box-orient: vertical;
+  }
+  // No way to access full content
+}
+
+// VIOLATION: Fixed positioning that can block content
+@mixin fixed-overlay($z-index: 9999) {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: $z-index;
+  // Can trap focus or block content
+}
+
+// ============================================
+// Functions with Accessibility Issues
+// ============================================
+
+// VIOLATION: Function that doesn't check contrast
+@function get-text-color($bg-color) {
+  @return #333; // Always returns same color regardless of background
+}
+
+// VIOLATION: Function that creates too-small sizes
+@function scale-down($size, $factor: 0.5) {
+  @return $size * $factor; // Can create inaccessible sizes
+}
+
+// ============================================
+// Placeholder Selectors with Issues
+// ============================================
+
+// VIOLATION: Removes all focus indicators
+%no-outline {
+  outline: none;
+  box-shadow: none;
+
+  &:focus,
+  &:focus-visible,
+  &:active {
+    outline: none;
+    box-shadow: none;
+  }
+}
+
+// VIOLATION: Low contrast styling
+%low-contrast {
+  color: $color-primary;
+  background-color: $color-background;
+  // Contrast ratio too low
+}
+
+// VIOLATION: Tiny text
+%micro-text {
+  font-size: $font-size-micro;
+  line-height: 1;
+}
+
+// ============================================
+// Nested Selectors with Violations
+// ============================================
+
+.navigation {
+  // VIOLATION: Hover-only dropdown
+  .dropdown {
+    position: relative;
+
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: white;
+
+      .dropdown-item {
+        padding: $spacing-small;
+
+        &:hover {
+          background: #f0f0f0;
+          // Only hover, no focus styles
+        }
+      }
+    }
+
+    &:hover .dropdown-menu {
+      display: block;
+      // Not accessible via keyboard
+    }
+  }
+
+  // VIOLATION: Links that don't look like links
+  a {
+    color: inherit;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+      // Only visible on hover
+    }
+  }
+}
+
+// ============================================
+// Component Classes with Violations
+// ============================================
+
+// VIOLATION 1: Button with removed focus
+.button {
+  @include no-focus;
+  padding: $spacing-small;
+  background: $color-secondary;
+  color: $color-text-light;
+  border: none;
+  cursor: pointer;
+
+  &--small {
+    width: $button-size-small;
+    height: $button-size-small;
+    // Below 44x44px minimum
+  }
+
+  &--disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    // Too faint, unclear state
+  }
+
+  &--icon-only {
+    // VIOLATION: No accessible text
+    font-size: 0;
+
+    &::before {
+      content: "🗑️";
+      font-size: 16px;
+      // Icon without label
+    }
+  }
+}
+
+// VIOLATION 2: Form with accessibility issues
+.form {
+  &__group {
+    margin-bottom: $spacing-small;
+    // Insufficient spacing
+  }
+
+  &__input {
+    @extend %no-outline;
+    padding: $spacing-small;
+    border: 1px solid $color-primary;
+    font-size: $font-size-small;
+
+    // VIOLATION: Placeholder as label
+    &::placeholder {
+      color: $color-primary;
+      opacity: 1;
+    }
+
+    // VIOLATION: Error state only shown by color
+    &--error {
+      border-color: $color-error;
+      // No icon or text indicator
+    }
+
+    &:disabled {
+      background: #f9f9f9;
+      color: $color-text-light;
+      // Low contrast for disabled state
+    }
+  }
+
+  &__label {
+    // VIOLATION: Label hidden or floating
+    &--floating {
+      position: absolute;
+      top: 50%;
+      left: 10px;
+      transform: translateY(-50%);
+      transition: all 0.3s;
+      pointer-events: none;
+      font-size: $font-size-small;
+      color: $color-primary;
+    }
+  }
+
+  &__error {
+    color: $color-error;
+    font-size: $font-size-tiny;
+    margin-top: $spacing-tiny;
+    // VIOLATION: Not associated with input via aria-describedby
+  }
+}
+
+// VIOLATION 3: Modal without proper accessibility
+.modal {
+  @include fixed-overlay;
+  background: rgba(0, 0, 0, 0.5);
+  display: none;
+
+  &--open {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    // No focus trap, no aria-modal
+  }
+
+  &__content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 500px;
+
+    // VIOLATION: Close button without label
+    .close-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+
+      &::before {
+        content: "×";
+        // No accessible label
+      }
+    }
+  }
+}
+
+// VIOLATION 4: Tabs without ARIA
+.tabs {
+  &__list {
+    display: flex;
+    border-bottom: 1px solid #ccc;
+    gap: $spacing-small;
+    // Insufficient spacing between tabs
+  }
+
+  &__tab {
+    padding: $spacing-small;
+    cursor: pointer;
+    border: none;
+    background: none;
+
+    &--active {
+      border-bottom: 2px solid blue;
+      font-weight: bold;
+      // Only visual indicator, no aria-selected
+    }
+
+    &:hover {
+      background: #f0f0f0;
+      // No focus styles
+    }
+  }
+
+  &__panel {
+    padding: 20px;
+
+    &--hidden {
+      display: none;
+      // Should use aria-hidden instead
+    }
+  }
+}
+
+// VIOLATION 5: Accordion without accessibility
+.accordion {
+  &__item {
+    border-bottom: 1px solid #ccc;
+  }
+
+  &__header {
+    padding: $spacing-small;
+    cursor: pointer;
+    background: white;
+
+    &:hover {
+      background: #f0f0f0;
+      // No focus styles, no role="button"
+    }
+
+    &::after {
+      content: "+";
+      float: right;
+      // Icon not announced to screen readers
+    }
+
+    &--open::after {
+      content: "−";
+    }
+  }
+
+  &__content {
+    padding: $spacing-small;
+
+    &--collapsed {
+      display: none;
+      // No aria-expanded, aria-controls
+    }
+  }
+}
+
+// VIOLATION 6: Carousel without accessibility
+.carousel {
+  position: relative;
+  overflow: hidden;
+
+  &__track {
+    display: flex;
+    transition: transform 0.3s ease;
+    // No reduced motion support
+  }
+
+  &__slide {
+    flex: 0 0 100%;
+
+    &:not(.carousel__slide--active) {
+      display: none;
+      // Hidden slides not properly managed
+    }
+  }
+
+  &__controls {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: $spacing-small;
+  }
+
+  &__dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: $color-primary;
+    cursor: pointer;
+
+    &--active {
+      background: blue;
+      // No accessible label for dots
+    }
+  }
+
+  &__arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    padding: $spacing-small;
+    cursor: pointer;
+
+    &--prev {
+      left: 10px;
+    }
+
+    &--next {
+      right: 10px;
+    }
+
+    // VIOLATION: No accessible label
+  }
+}
+
+// VIOLATION 7: Tooltip without accessibility
+.tooltip {
+  position: relative;
+  display: inline-block;
+
+  &__content {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: black;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    margin-bottom: 5px;
+
+    // VIOLATION: Only shows on hover
+  }
+
+  &:hover &__content {
+    opacity: 1;
+    // Not accessible via keyboard
+  }
+}
+
+// VIOLATION 8: Custom checkbox without ARIA
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+
+  &__box {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #333;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &--checked {
+      background: blue;
+
+      &::after {
+        content: "✓";
+        color: white;
+      }
+    }
+
+    // VIOLATION: No role="checkbox", aria-checked, keyboard support
+  }
+
+  &__label {
+    font-size: 14px;
+  }
+}
+
+// VIOLATION 9: Progress bar without ARIA
+.progress {
+  width: 100%;
+  height: 20px;
+  background: #e0e0e0;
+  border-radius: 10px;
+  overflow: hidden;
+
+  &__bar {
+    height: 100%;
+    background: #2196F3;
+    transition: width 0.3s ease;
+    // VIOLATION: No role="progressbar", aria-valuenow, etc.
+  }
+
+  &__label {
+    @extend %micro-text;
+    color: $color-primary;
+    margin-top: $spacing-tiny;
+    // Low contrast, tiny text
+  }
+}
+
+// VIOLATION 10: Alert without live region
+.alert {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 15px 20px;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+
+  &--info {
+    background: #2196F3;
+    color: white;
+  }
+
+  &--error {
+    background: #F44336;
+    color: white;
+  }
+
+  &--warning {
+    background: #FF9800;
+    color: white;
+  }
+
+  &--success {
+    background: #4CAF50;
+    color: white;
+  }
+
+  // VIOLATION: No role="alert" or aria-live
+}
+
+// VIOLATION 11: Table without proper headers
+.table {
+  width: 100%;
+  border-collapse: collapse;
+
+  &__cell {
+    border: 1px solid #ccc;
+    padding: $spacing-small;
+    font-size: $font-size-small;
+
+    // VIOLATION: Using td for headers instead of th
+    &--header {
+      font-weight: bold;
+      background: #f0f0f0;
+      // Should be <th> with scope attribute
+    }
+  }
+
+  &__row {
+    &:hover {
+      background: #f9f9f9;
+      // Only hover, no focus styles
+    }
+  }
+}
+
+// VIOLATION 12: Menu without ARIA
+.menu {
+  position: relative;
+
+  &__trigger {
+    padding: $spacing-small;
+    background: white;
+    border: 1px solid #ccc;
+    cursor: pointer;
+
+    &:hover {
+      background: #f0f0f0;
+      // No focus styles
+    }
+  }
+
+  &__list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    min-width: 150px;
+    display: none;
+
+    &--open {
+      display: block;
+      // No role="menu", aria-haspopup
+    }
+  }
+
+  &__item {
+    padding: 10px 15px;
+    cursor: pointer;
+
+    &:hover {
+      background: #f0f0f0;
+      // No role="menuitem", no keyboard navigation
+    }
+
+    &--disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      // Should use aria-disabled
+    }
+  }
+}
+
+// VIOLATION 13: Card with clickable area issues
+.card {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 20px;
+  cursor: pointer;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    // Entire card clickable but no focus indicator
+  }
+
+  &__title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: $spacing-small;
+  }
+
+  &__description {
+    @include truncate-text(3);
+    color: $color-primary;
+    // Low contrast, truncated without way to read full text
+  }
+
+  &__link {
+    color: inherit;
+    text-decoration: none;
+
+    &::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      // Stretched link without proper semantics
+    }
+  }
+}
+
+// VIOLATION 14: Loading spinner without announcement
+.spinner {
+  @include animate-spin;
+  width: 40px;
+  height: 40px;
+  border: 4px solid #333;
+  border-top-color: transparent;
+  border-radius: 50%;
+
+  // VIOLATION: No role="status", aria-label, or text alternative
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// VIOLATION 15: Breadcrumb without proper markup
+.breadcrumb {
+  display: flex;
+  gap: $spacing-small;
+  font-size: $font-size-small;
+
+  &__item {
+    color: $color-primary;
+
+    &:not(:last-child)::after {
+      content: "/";
+      margin-left: $spacing-small;
+      // Separator in content, not semantic
+    }
+
+    &--active {
+      color: #333;
+      font-weight: bold;
+      // No aria-current="page"
+    }
+  }
+
+  &__link {
+    color: inherit;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  // VIOLATION: No nav element, no aria-label="breadcrumb"
+}
+
+// VIOLATION 16: Pagination without accessibility
+.pagination {
+  display: flex;
+  gap: $spacing-small;
+  justify-content: center;
+
+  &__item {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    font-size: $font-size-small;
+
+    &--active {
+      background: blue;
+      color: white;
+      border-color: blue;
+      // No aria-current="page"
+    }
+
+    &--disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      // Should use aria-disabled
+    }
+
+    &:hover:not(&--disabled):not(&--active) {
+      background: #f0f0f0;
+      // No focus styles
+    }
+  }
+
+  // VIOLATION: No nav element, no aria-label
+}
+
+// VIOLATION 17: Badge with color-only meaning
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: $font-size-tiny;
+  font-weight: bold;
+
+  &--success {
+    background: #4CAF50;
+    color: white;
+    // Color-only indicator
+  }
+
+  &--error {
+    background: #F44336;
+    color: white;
+    // Color-only indicator
+  }
+
+  &--warning {
+    background: #FF9800;
+    color: white;
+    // Color-only indicator
+  }
+}
+
+// VIOLATION 18: Stepper without accessibility
+.stepper {
+  display: flex;
+  justify-content: space-between;
+
+  &__step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    position: relative;
+
+    &:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      top: 15px;
+      left: 50%;
+      width: 100%;
+      height: 2px;
+      background: #ccc;
+      // Connector line, no semantic meaning
+    }
+
+    &--active &__circle {
+      background: blue;
+      color: white;
+    }
+
+    &--completed &__circle {
+      background: green;
+      color: white;
+
+      &::after {
+        content: "✓";
+        // Icon without text alternative
+      }
+    }
+  }
+
+  &__circle {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: $font-size-small;
+    z-index: 1;
+  }
+
+  &__label {
+    margin-top: $spacing-small;
+    font-size: $font-size-small;
+    text-align: center;
+  }
+
+  // VIOLATION: No role="progressbar" or aria attributes
+}
+
+// VIOLATION 19: Skeleton loader without announcement
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #f0f0f0 25%,
+    #e0e0e0 50%,
+    #f0f0f0 75%
+  );
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+  border-radius: 4px;
+
+  &--text {
+    height: 16px;
+    margin-bottom: $spacing-small;
+  }
+
+  &--circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+  }
+
+  &--rect {
+    height: 100px;
+  }
+
+  // VIOLATION: No aria-busy, aria-live, or loading announcement
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+// VIOLATION 20: Drag and drop without keyboard alternative
+.draggable {
+  padding: 15px;
+  margin: 5px 0;
+  background: #f0f0f0;
+  border: 1px solid #ccc;
+  cursor: move;
+
+  &--dragging {
+    opacity: 0.5;
+  }
+
+  &--over {
+    border-color: blue;
+    border-style: dashed;
+  }
+
+  // VIOLATION: No keyboard alternative, no ARIA drag-drop attributes
+}
+
+// ============================================
+// Media Queries with Violations
+// ============================================
+
+// VIOLATION: Hiding content at certain breakpoints
+@media (max-width: 768px) {
+  .desktop-only {
+    display: none;
+    // Important content hidden on mobile
+  }
+
+  .mobile-nav {
+    // VIOLATION: Hamburger menu without proper ARIA
+    .hamburger {
+      width: 30px;
+      height: 30px;
+      // Below minimum touch target
+
+      span {
+        display: block;
+        height: 3px;
+        background: #333;
+        margin: 5px 0;
+        // No accessible label for menu button
+      }
+    }
+  }
+}
+
+@media (min-width: 1200px) {
+  .mobile-only {
+    display: none;
+    // Content hidden on desktop
+  }
+}
+
+// VIOLATION: No reduced motion support
+@media (prefers-reduced-motion: no-preference) {
+  // Should be "reduce" not "no-preference"
+  * {
+    transition: all 0.3s ease;
+    // Applies transitions even when user prefers reduced motion
+  }
+}
+
+// ============================================
+// Print Styles with Violations
+// ============================================
+
+@media print {
+  .no-print {
+    display: none;
+    // May hide important content
+  }
+
+  a {
+    color: black;
+    text-decoration: none;
+
+    &::after {
+      content: " (" attr(href) ")";
+      // Can create very long URLs that break layout
+    }
+  }
+
+  .page-break {
+    page-break-after: always;
+    // May break content awkwardly
+  }
+}
+
+// ============================================
+// Dark Mode without Proper Contrast
+// ============================================
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background: #1a1a1a;
+    color: #ccc;
+    // Low contrast in dark mode
+  }
+
+  .button {
+    background: #333;
+    color: #666;
+    // Insufficient contrast
+  }
+
+  a {
+    color: #4A90E2;
+    // May not have sufficient contrast on dark background
+  }
+}
+
+// ============================================
+// High Contrast Mode Issues
+// ============================================
+
+@media (prefers-contrast: high) {
+  // VIOLATION: Not providing high contrast alternatives
+  .subtle-text {
+    color: $color-primary;
+    // Still low contrast even in high contrast mode
+  }
+}
+
+// ============================================
+// Utility Classes with Violations
+// ============================================
+
+.u-hide {
+  display: none !important;
+  // Hides from everyone including screen readers
+}
+
+.u-invisible {
+  visibility: hidden !important;
+  // Also hides from screen readers
+}
+
+.u-no-focus {
+  @extend %no-outline;
+}
+
+.u-truncate {
+  @include truncate-text;
+}
+
+.u-tiny {
+  font-size: $font-size-tiny !important;
+}
+
+.u-low-contrast {
+  @extend %low-contrast;
+}
+
+.u-pointer-none {
+  pointer-events: none !important;
+  // Makes elements unclickable
+}
+
+.u-fixed {
+  position: fixed !important;
+  // Can cause layout issues
+}
+
+.u-absolute {
+  position: absolute !important;
+  // Can overlap content
+}
+
+.u-z-top {
+  z-index: 999999 !important;
+  // Excessive z-index
+}
+
+// ============================================
+// Correct Implementations (for reference)
+// ============================================
+
+// Correct: Visually hidden but accessible
+@mixin visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+// Correct: Focus indicator
+@mixin accessible-focus {
+  &:focus-visible {
+    outline: 3px solid #4A90E2;
+    outline-offset: 2px;
+  }
+}
+
+// Correct: Reduced motion support
+@mixin respect-motion-preference {
+  @media (prefers-reduced-motion: reduce) {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+// Correct: Contrast checking function
+@function get-contrast-ratio($color1, $color2) {
+  $l1: luminance($color1);
+  $l2: luminance($color2);
+
+  @if $l1 > $l2 {
+    @return ($l1 + 0.05) / ($l2 + 0.05);
+  } @else {
+    @return ($l2 + 0.05) / ($l1 + 0.05);
+  }
+}
+
+@function luminance($color) {
+  $red: red($color) / 255;
+  $green: green($color) / 255;
+  $blue: blue($color) / 255;
+
+  @return 0.2126 * $red + 0.7152 * $green + 0.0722 * $blue;
+}
+
+// Correct: Accessible button
+.accessible-button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 12px 24px;
+  background: #0066cc;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+
+  @include accessible-focus;
+  @include respect-motion-preference;
+
+  &:hover {
+    background: #0052a3;
+  }
+
+  &:active {
+    background: #003d7a;
+  }
+
+  &:disabled {
+    background: #cccccc;
+    color: #666666;
+    cursor: not-allowed;
+    // Clear visual indication of disabled state
+  }
+}
+
+// Correct: Skip link
+.skip-link {
+  @include visually-hidden;
+
+  &:focus {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: #000;
+    color: #fff;
+    padding: 8px 16px;
+    text-decoration: none;
+    z-index: 100;
+    clip: auto;
+    width: auto;
+    height: auto;
+  }
+}
