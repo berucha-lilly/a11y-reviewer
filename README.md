@@ -6,6 +6,20 @@
 
 **GitHub-Based Accessibility Reviewer with MCP**: Automated accessibility checks for pull requests using a Model Context Protocol (MCP) server. It enforces WCAG 2.2 AA rules via a hybrid analyzer (fast regex + ESLint `jsx-a11y`) and posts results back to PRs.
 
+## Table of Contents
+
+- [What it does](#-what-it-does)
+- [Quick Start](#-quick-start)
+- [MCP Tools Reference](#-mcp-tools-reference)
+- [GitHub Actions Integration](#-github-actions-integration)
+  - [Developer Integration Steps](#developer-integration-steps-in-your-app-repo)
+  - [What Happens on Each PR](#what-happens-on-each-pr)
+  - [Making Checks Required](#making-checks-required)
+  - [Configuration](#configuration-a11yconfigjson)
+  - [Testing](#testing)
+- [Reference](#-reference)
+- [License](#-license)
+
 ## ✅ What it does
 
 - Hybrid analysis (regex + ESLint `jsx-a11y`)
@@ -28,7 +42,7 @@ The server provides **3 MCP tools** via JSON-RPC:
 - **npm** (comes with Node.js)
 - **GitHub repository** with admin access (for GitHub Actions integration)
 
-### Installation
+### Installation (in this repo)
 
 1. **Install dependencies**
 ```bash
@@ -47,7 +61,7 @@ git commit -m "Add accessibility checks"
 git push
 ```
 
-## � MCP Tools Reference
+## 🔧 MCP Tools Reference
 
 The server implements the Model Context Protocol and provides 3 tools accessible via JSON-RPC:
 
@@ -136,25 +150,26 @@ Get detailed remediation guidance for specific violation types.
 
 Automatically check every pull request for accessibility violations.
 
-### Setup (Quick Version)
+### Developer Integration Steps (in your app repo)
 
-1. **Run the one-command installer:**
+1. From the a11y-mcp repo, run:
+
 ```bash
-# From the a11y-mcp repo
 node scripts/setup-integration.js
 ```
 
-This creates a self-contained integration under:
+2. Commit the generated files in your app repo:
+
+```bash
+git add .github/ .a11y/ .gitignore
+git commit -m "Add accessibility checks"
+git push
+```
+
+This creates:
 - `.github/a11y-mcp/` (MCP server + PR analyzer + minimal dependencies)
 - `.github/workflows/accessibility-review.yml` (GitHub Actions workflow)
 - `.a11y/config.json` (config)
-
-2. **Commit and push:**
-```bash
-git add .github/ .a11y/ .gitignore
-git commit -m "Add MCP accessibility checks"
-git push
-```
 
 ### What Happens on Each PR
 
@@ -207,7 +222,7 @@ The setup script creates a default config file. Key options:
 
 ### Testing
 
-### Pre-PR Local Scan (changed files only)
+#### Pre-PR Local Scan (changed files only)
 
 Run the local analyzer against files changed versus `origin/main`:
 
@@ -217,7 +232,7 @@ node scripts/analyze-pr-mcp.js
 
 Results are written to `scripts/a11y-results.json`.
 
-Run the validation suite:
+#### Validation Suite
 
 ```bash
 npm test
