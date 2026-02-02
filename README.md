@@ -9,7 +9,7 @@
 ## Table of Contents
 
 - [What it does](#-what-it-does)
-- [Quick Start](#-quick-start)
+- [For Maintainers](#️-for-maintainers-a11y-mcp-repo-only)
 - [MCP Tools Reference](#-mcp-tools-reference)
 - [GitHub Actions Integration](#-github-actions-integration)
   - [Developer Integration Steps](#developer-integration-steps-in-your-app-repo)
@@ -35,30 +35,31 @@ The server provides **3 MCP tools** via JSON-RPC:
 2. **`check_accessibility_batch`**: Analyze multiple files in one request
 3. **`suggest_fix`**: Get detailed remediation guidance for violations
 
-## 🚀 Quick Start
+## 🛠️ For Maintainers (a11y-mcp repo only)
+
+> **📍 Integrating into your app?** Skip to [Developer Integration Steps](#developer-integration-steps-in-your-app-repo) instead.
+
+This section is for maintainers working on the a11y-mcp tool itself.
 
 ### Prerequisites
 - **Node.js 18+** ([Download here](https://nodejs.org/))
 - **npm** (comes with Node.js)
-- **GitHub repository** with admin access (for GitHub Actions integration)
 
-### Installation (in this repo)
+### Setup
 
 1. **Install dependencies**
 ```bash
 npm install
 ```
 
-2. **Generate integration files**
+2. **Run tests**
 ```bash
-node scripts/setup-integration.js
+npm test
 ```
 
-3. **Commit and push**
+3. **Test the setup script**
 ```bash
-git add .github/ .a11y/
-git commit -m "Add accessibility checks"
-git push
+node scripts/setup-integration.js
 ```
 
 ## 🔧 MCP Tools Reference
