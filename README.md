@@ -152,13 +152,19 @@ Automatically check every pull request for accessibility violations.
 
 ### Developer Integration Steps (in your app repo)
 
-1. From the a11y-mcp repo, run:
+1. From your app repo, clone the tool into a sibling folder (same parent directory):
 
 ```bash
-node scripts/setup-integration.js
+git clone https://github.com/berucha-lilly/a11y-mcp.git ../a11y-mcp
 ```
 
-2. Commit the generated files in your app repo:
+2. Run the setup script from your app repo (using that sibling path):
+
+```bash
+node ../a11y-mcp/scripts/setup-integration.js
+```
+
+3. Commit the generated files in your app repo:
 
 ```bash
 git add .github/ .a11y/ .gitignore
@@ -166,7 +172,7 @@ git commit -m "Add accessibility checks"
 git push
 ```
 
-This creates:
+This creates in your app repo:
 - `.github/a11y-mcp/` (MCP server + PR analyzer + minimal dependencies)
 - `.github/workflows/accessibility-review.yml` (GitHub Actions workflow)
 - `.a11y/config.json` (config)
