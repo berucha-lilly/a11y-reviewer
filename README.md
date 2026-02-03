@@ -10,7 +10,7 @@
 
 - [What it does](#what-it-does)
 - [Architecture](#architecture)
-- [For Maintainers](#for-maintainers-a11y-mcp-repo-only)
+- [For Maintainers](#for-maintainers-a11y-reviewer-repo-only)
 - [MCP Tools Reference](#mcp-tools-reference)
 - [GitHub Actions Integration](#github-actions-integration)
   - [Developer Integration Steps](#developer-integration-steps-in-your-app-repo)
@@ -79,11 +79,11 @@ Key highlights:
 - Normalized JSON output schema for consistent reporting
 - GitHub Actions integration and local viewer components
 
-## 🛠️ For Maintainers (a11y-mcp repo only)
+## 🛠️ For Maintainers (a11y-reviewer repo only)
 
 > **📍 Integrating into your app?** Skip to [Developer Integration Steps](#developer-integration-steps-in-your-app-repo) instead.
 
-This section is for maintainers working on the a11y-mcp tool itself.
+This section is for maintainers working on the a11y-reviewer tool itself.
 
 ### Prerequisites
 - **Node.js 18+** ([Download here](https://nodejs.org/))
@@ -202,13 +202,13 @@ Automatically check every pull request for accessibility violations.
 1. From your app repo, clone the tool into a sibling folder (same parent directory):
 
 ```bash
-git clone https://github.com/berucha-lilly/a11y-mcp.git ../a11y-mcp
+git clone https://github.com/berucha-lilly/a11y-reviewer.git ../a11y-reviewer
 ```
 
 2. Run the setup script from your app repo (using that sibling path):
 
 ```bash
-node ../a11y-mcp/scripts/setup-integration.js
+node ../a11y-reviewer/scripts/setup-integration.js
 ```
 
 3. Commit the generated files in your app repo:
@@ -220,7 +220,7 @@ git push
 ```
 
 This creates in your app repo:
-- `.github/a11y-mcp/` (MCP server + PR analyzer + minimal dependencies)
+- `.github/a11y-reviewer/` (reviewer server + PR analyzer + minimal dependencies)
 - `.github/workflows/accessibility-review.yml` (GitHub Actions workflow)
 - `.a11y/config.json` (config)
 
@@ -348,17 +348,17 @@ Before creating a test PR, you can check for violations locally:
 
 ```bash
 # From your app repo root
-node .github/a11y-mcp/analyze-pr-mcp.js
+node .github/a11y-reviewer/analyze-pr-mcp.js
 ```
 
-This checks files changed vs `origin/main`. Results are written to `.github/a11y-mcp/a11y-results.json`. Be aware that `.github/a11y-mcp/a11y-results.json` is overwritten each time the analyzer runs.
+This checks files changed vs `origin/main`. Results are written to `.github/a11y-reviewer/a11y-results.json`. Be aware that `.github/a11y-reviewer/a11y-results.json` is overwritten each time the analyzer runs.
 
 **View results in browser (one command):**
 ```bash
 # Run the viewer (starts a local server and opens your browser)
-.github/a11y-mcp/scripts/view-results.sh
+.github/a11y-reviewer/scripts/view-results.sh
 # If the script isn't executable yet, run:
-chmod +x .github/a11y-mcp/scripts/view-results.sh
+chmod +x .github/a11y-reviewer/scripts/view-results.sh
 ```
 
 The script starts a local web server (requires `python3`) and opens the interactive viewer at `http://localhost:8080/scripts/view-results.html`. Press `Ctrl+C` in the terminal to stop the server.
@@ -366,19 +366,19 @@ The script starts a local web server (requires `python3`) and opens the interact
 Windows (PowerShell) — options:
 ```powershell
 # Use Git Bash or WSL to run the script, or run it from PowerShell like:
-# Start-Process -FilePath bash -ArgumentList "./.github/a11y-mcp/scripts/view-results.sh"
+# Start-Process -FilePath bash -ArgumentList "./.github/a11y-reviewer/scripts/view-results.sh"
 ```
 
 **No Python 3 or prefer manual load?** Open the HTML file and use the file picker instead:
 ```bash
-open .github/a11y-mcp/scripts/view-results.html
+open .github/a11y-reviewer/scripts/view-results.html
 # Or on Linux:
-xdg-open .github/a11y-mcp/scripts/view-results.html
+xdg-open .github/a11y-reviewer/scripts/view-results.html
 # On Windows (Command Prompt):
-start .github\\a11y-mcp\\scripts\\view-results.html
+start .github\\a11y-reviewer\\scripts\\view-results.html
 ```
 
-**Note:** Dependencies are installed automatically by the setup script. If the local scan fails, run `cd .github/a11y-mcp && npm install`.
+**Note:** Dependencies are installed automatically by the setup script. If the local scan fails, run `cd .github/a11y-reviewer && npm install`.
 
 #### 4. Create a Test PR
 Create a PR with accessibility violations to verify the GitHub Actions workflow runs:

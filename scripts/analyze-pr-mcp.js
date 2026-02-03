@@ -29,7 +29,7 @@ function resolveRepoRoot() {
 
 const rootDir = resolveRepoRoot();
 const defaultResultsPath = path.join(__dirname, 'a11y-results.json');
-const repoResultsDir = path.join(rootDir, '.github', 'a11y-mcp');
+const repoResultsDir = path.join(rootDir, '.github', 'a11y-reviewer');
 const resultsPath = fs.existsSync(repoResultsDir)
   ? path.join(repoResultsDir, 'a11y-results.json')
   : defaultResultsPath;

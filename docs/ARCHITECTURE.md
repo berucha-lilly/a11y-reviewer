@@ -1,6 +1,6 @@
-# Architecture — a11y-mcp (project-wide)
+# Architecture — a11y-reviewer (project-wide)
 
-This document describes the a11y-mcp architecture: how the MCP server, analyzers, scripts, CI integration, and viewer fit together. It includes diagrams that show the analysis pipeline and component relationships.
+This document describes the a11y-reviewer architecture: how the reviewer server, analyzers, scripts, CI integration, and viewer fit together. It includes diagrams that show the analysis pipeline and component relationships.
 
 ## Pipeline (high level)
 
@@ -19,7 +19,7 @@ flowchart LR
   BabelJS --> Normalize
   HtmlAnalyzer --> Normalize
   CssAnalyzer --> Normalize
-  Normalize --> Aggregate["aggregate -> .github/a11y-mcp/a11y-results.json"]
+  Normalize --> Aggregate["aggregate -> .github/a11y-reviewer/a11y-results.json"]
   Aggregate --> Viewer["scripts/view-results.html\n(browser viewer)"]
   Aggregate --> GitHubReporter["GitHub Actions reporter\n(PR comments/status)"]
 ```
@@ -46,7 +46,7 @@ graph TD
     CSSNode["src/core/css-analyzer.js\n(CSS/SCSS)"]
   end
   subgraph Outputs
-    ResultsJSON[".github/a11y-mcp/a11y-results.json\n(aggregated)"]
+    ResultsJSON[".github/a11y-reviewer/a11y-results.json\n(aggregated)"]
     ViewerNode["scripts/view-results.html\n(viewer)"]
     GitHubNode["GitHub Actions reporter\n(PR comments/status)"]
   end
@@ -69,20 +69,20 @@ graph TD
 
 ## Project responsibilities & flows
 
-- `scripts/analyze-pr-mcp.js` — top-level entry used by CI or local scans; orchestrates a batch run and writes `.github/a11y-mcp/a11y-results.json`.
+- `scripts/analyze-pr-mcp.js` — top-level entry used by CI or local scans; orchestrates a batch run and writes `.github/a11y-reviewer/a11y-results.json`.
 - `src/mcp-server.js` — MCP server exposing JSON-RPC tools (`check_accessibility`, `check_accessibility_batch`, `suggest_fix`).
 - `src/core/hybrid-analyzer.js` — main routing and orchestration for per-file decisions; integrates ESLint with `createRequire` and `resolvePluginsRelativeTo`.
 - `src/core/regex-analyzer.js` — fast, low-dependency checks used for early feedback and as a fallback when parsing fails.
 - `src/core/js-analyzer.js` — Babel AST-based semantic checks for runtime DOM manipulations and component patterns.
 - `src/core/html-analyzer.js` — structural and ARIA checks using `htmlparser2`.
 - `src/core/css-analyzer.js` — PostCSS-based visual/accessibility checks (contrast, focus styles, touch targets).
-- Viewer: `scripts/view-results.html` + `scripts/view-results.sh` — serve and display `.github/a11y-mcp/a11y-results.json` locally.
+- Viewer: `scripts/view-results.html` + `scripts/view-results.sh` — serve and display `.github/a11y-reviewer/a11y-results.json` locally.
 - CI: GitHub Actions workflow under `.github/workflows/accessibility-review.yml` calls the analyzer and uses the aggregated JSON to post PR comments and status checks.
 
 ## Data model and outputs
 
 - Normalized output fields (see also `docs/DETECTION.md`): `ruleId`, `severity`, `message`, `line`, `column`, `wcag`, `fix`, `suggestions`, and `filePath`.
-- Aggregated run file: `.github/a11y-mcp/a11y-results.json` (overwritten each run).
+- Aggregated run file: `.github/a11y-reviewer/a11y-results.json` (overwritten each run).
 - Consumers: viewer UI, GitHub Actions comments, PR status checks, and optional webhooks or integrations.
 
 ## Configuration and integration points

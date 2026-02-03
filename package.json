@@ -1,5 +1,5 @@
 {
-  "name": "a11y-mcp",
+  "name": "a11y-reviewer",
   "version": "1.0.0",
   "description": "Comprehensive GitHub Accessibility Reviewer MCP Server for enforcing WCAG 2.2 AA standards",
   "type": "module",

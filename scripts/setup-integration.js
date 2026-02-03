@@ -20,7 +20,7 @@ console.log('🚀 Setting up Accessibility Reviewer for your repository...\n');
 console.log('📁 Creating directory structure...');
 const githubDir = path.join(process.cwd(), '.github');
 const workflowsDir = path.join(githubDir, 'workflows');
-const a11yDir = path.join(githubDir, 'a11y-mcp');
+const a11yDir = path.join(githubDir, 'a11y-reviewer');
 const a11yCoreDir = path.join(a11yDir, 'core');
 
 
@@ -77,7 +77,7 @@ const packageJsonPath = path.join(REPO_ROOT, 'package.json');
 if (fs.existsSync(packageJsonPath)) {
   const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
   const a11yPackageJson = {
-    name: 'a11y-mcp-integration',
+    name: 'a11y-reviewer-integration',
     version: '1.0.0',
     type: 'module',
     dependencies: {
@@ -125,7 +125,7 @@ if (!fs.existsSync(configDir)) {
 }
 
 const defaultConfig = {
-  "$schema": "https://a11y-mcp.internal/schema/v1",
+  "$schema": "https://a11y-reviewer.internal/schema/v1",
   "wcagLevel": "AA",
   "wcagVersion": "2.2",
   "strictMode": true,
@@ -207,8 +207,8 @@ if (fs.existsSync(gitignorePath)) {
 }
 
 const entries = [
-  '.github/a11y-mcp/node_modules',
-  '.github/a11y-mcp/a11y-results.json',
+  '.github/a11y-reviewer/node_modules',
+  '.github/a11y-reviewer/a11y-results.json',
   '.a11y/cache',
   'a11y-results.json'
 ];

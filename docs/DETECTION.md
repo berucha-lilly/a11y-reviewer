@@ -2,7 +2,7 @@
 
 This document lists the accessibility issues the analyzers detect. Each violation in the report includes a mapped WCAG reference and suggested fixes.
 
-Summary: analyzers run in a pipeline — hybrid routing (including a regex fast-pass) → specific analyzers (ESLint/Babel/html/css). See the "Example violation output" section below for the normalized JSON schema. Note: the report file `.github/a11y-mcp/a11y-results.json` is overwritten on each run.
+Summary: analyzers run in a pipeline — hybrid routing (including a regex fast-pass) → specific analyzers (ESLint/Babel/html/css). See the "Example violation output" section below for the normalized JSON schema. Note: the report file `.github/a11y-reviewer/a11y-results.json` is overwritten on each run.
 
 ## Regex-based fast-pass checks
 The `regex-analyzer.js` implements a fast pattern-matching pass that catches a number of common issues across HTML/JSX/JS and CSS files. This pass runs first and is deliberately conservative: findings are quick to compute, may have less-precise locations, and can be re-evaluated by the deeper analyzers that run later.
