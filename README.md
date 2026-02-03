@@ -4,7 +4,7 @@
 [![Node.js](https://img.shields.io/badge/Node.js-18%2B-green)](https://nodejs.org/)
 [![MCP Server](https://img.shields.io/badge/MCP-Server-purple)](https://modelcontextprotocol.io/)
 
-**GitHub-Based Accessibility Reviewer with MCP**: Automated accessibility checks for pull requests using a Model Context Protocol (MCP) server. It enforces WCAG 2.2 AA rules via a hybrid analyzer (fast regex + ESLint `jsx-a11y`) and posts results back to PRs.
+**GitHub-Based Accessibility Reviewer with MCP**: Automated accessibility checks for pull requests using a Model Context Protocol (MCP) server. It enforces WCAG 2.2 AA rules via multiple specialized analyzers (HTML parser, PostCSS, Babel AST, ESLint jsx-a11y) and posts results back to PRs.
 
 ## Table of Contents
 
@@ -22,10 +22,24 @@
 
 ## ✅ What it does
 
-- Hybrid analysis (regex + ESLint `jsx-a11y`)
+- Hybrid analysis combining multiple specialized analyzers:
+  - **JSX/TSX files**: ESLint with jsx-a11y plugin for React accessibility
+  - **JavaScript/TypeScript files**: Babel AST parser detecting DOM manipulation patterns and accessibility anti-patterns
+  - **HTML/HTM files**: htmlparser2-based analyzer for semantic HTML, ARIA, forms, images, landmarks
+  - **CSS/SCSS files**: PostCSS-based analyzer for focus styles, contrast, animations, text spacing
 - Supports `.js`, `.jsx`, `.ts`, `.tsx`, `.html`, `.htm`, `.css`, `.scss`
 - GitHub Actions integration with PR comments
 - MCP tools for single-file, batch, and fix suggestions
+
+### Detection Capabilities
+
+The analyzers detect a broad set of accessibility issues across source types (JSX/TSX, JS/TS, HTML/HTM, CSS/SCSS). For the full, detailed list of checks (including WCAG mappings and suggested fixes), see [DETECTION.md](DETECTION.md).
+
+Short summary:
+- JSX/TSX: React-focused checks via `eslint-plugin-jsx-a11y` (alt text, ARIA, keyboard support, labels)
+- JS/TS: DOM-manipulation and runtime anti-patterns detected via Babel AST (focus management, tabindex, autoplay, unsafe injection, missing aria-live, custom control patterns)
+- HTML: Semantic and structural checks (lang, title, images, forms, landmarks, tables, ARIA correctness)
+- CSS/SCSS: Visual/accessibility style checks (focus styles, contrast, animations, touch targets, hiding techniques)
 
 ### MCP Tools Available
 
@@ -34,6 +48,25 @@ The server provides **3 MCP tools** via JSON-RPC:
 1. **`check_accessibility`**: Analyze a single file for violations
 2. **`check_accessibility_batch`**: Analyze multiple files in one request
 3. **`suggest_fix`**: Get detailed remediation guidance for violations
+
+### How It Works
+
+The tool uses a **hybrid analyzer** (`src/core/hybrid-analyzer.js`) that intelligently routes files to specialized analyzers:
+
+1. **File Type Detection**: Examines file extension and content
+2. **JSX Detection**: For `.js`/`.ts` files, checks for React imports or JSX syntax
+3. **Routing**:
+   - `.jsx`/`.tsx` or JS files with JSX → **ESLint** with jsx-a11y plugin
+   - `.js`/`.ts` without JSX → **Babel AST parser** (`js-analyzer.js`)
+   - `.html`/`.htm` → **htmlparser2** (`html-analyzer.js`)
+   - `.css`/`.scss` → **PostCSS** (`css-analyzer.js`)
+4. **Normalization**: All analyzers return violations in a consistent format with WCAG criteria and fix suggestions
+
+**Core Analyzers**:
+- `src/core/html-analyzer.js` - 30+ violation types, DOM traversal with pre/post checks
+- `src/core/css-analyzer.js` - 20+ violation types, two-pass analysis for context-aware checks
+- `src/core/js-analyzer.js` - 25+ violation types, AST traversal with pattern matching
+- `src/core/hybrid-analyzer.js` - Routing logic and ESLint integration
 
 ## 🛠️ For Maintainers (a11y-mcp repo only)
 
@@ -44,6 +77,8 @@ This section is for maintainers working on the a11y-mcp tool itself.
 ### Prerequisites
 - **Node.js 18+** ([Download here](https://nodejs.org/))
 - **npm** (comes with Node.js)
+- **Python 3** (required for the one-command viewer auto-load)
+- **Bash / POSIX shell** (for the included `view-results.sh` script; Windows users can use Git Bash or WSL)
 
 ### Setup
 
@@ -180,8 +215,8 @@ This creates in your app repo:
 
 ### What Happens on Each PR
 
-1. **Trigger**: Workflow runs on every PR that changes `.js`, `.jsx`, `.html`, `.css`, or `.scss` files
-2. **Analysis**: MCP server checks all changed files via JSON-RPC
+1. **Trigger**: Workflow runs on every PR that changes `.js`, `.jsx`, `.ts`, `.tsx`, `.html`, `.htm`, `.css`, or `.scss` files
+2. **Analysis**: Hybrid analyzer routes each file to the appropriate specialized analyzer
 3. **Reporting**: Bot comments on PR with:
    - Total violations found
    - Per-file breakdown
@@ -305,7 +340,32 @@ Before creating a test PR, you can check for violations locally:
 node .github/a11y-mcp/analyze-pr-mcp.js
 ```
 
-Results are written to `.github/a11y-mcp/a11y-results.json`. This checks files changed vs `origin/main`.
+This checks files changed vs `origin/main`. Results are written to `.github/a11y-mcp/a11y-results.json`. Be aware that `.github/a11y-mcp/a11y-results.json` is overwritten each time the analyzer runs.
+
+**View results in browser (one command):**
+```bash
+# Run the viewer (starts a local server and opens your browser)
+.github/a11y-mcp/scripts/view-results.sh
+# If the script isn't executable yet, run:
+chmod +x .github/a11y-mcp/scripts/view-results.sh
+```
+
+The script starts a local web server (requires `python3`) and opens the interactive viewer at `http://localhost:8080/scripts/view-results.html`. Press `Ctrl+C` in the terminal to stop the server.
+
+Windows (PowerShell) — options:
+```powershell
+# Use Git Bash or WSL to run the script, or run it from PowerShell like:
+# Start-Process -FilePath bash -ArgumentList "./.github/a11y-mcp/scripts/view-results.sh"
+```
+
+**No Python 3 or prefer manual load?** Open the HTML file and use the file picker instead:
+```bash
+open .github/a11y-mcp/scripts/view-results.html
+# Or on Linux:
+xdg-open .github/a11y-mcp/scripts/view-results.html
+# On Windows (Command Prompt):
+start .github\\a11y-mcp\\scripts\\view-results.html
+```
 
 **Note:** Dependencies are installed automatically by the setup script. If the local scan fails, run `cd .github/a11y-mcp && npm install`.
 
