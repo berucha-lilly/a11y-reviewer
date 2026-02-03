@@ -16,18 +16,32 @@ const violationToWCAG = {
   'form-input-missing-label': ['3.3.2', '4.1.2'],
   'button-empty': ['4.1.2'],
   'link-empty': ['2.4.4'],
+  'link-non-descriptive': ['2.4.4'],
+  'link-new-window-no-warning': ['3.2.5'],
   'iframe-missing-title': ['4.1.2'],
   'div-as-button': ['4.1.2'],
   'click-without-keyboard': ['2.1.1'],
   'positive-tabindex': ['2.4.3'],
   'missing-lang': ['3.1.1'],
+  'missing-lang-foreign': ['3.1.2'],
   'heading-empty': ['2.4.6'],
+  'heading-hierarchy': ['2.4.6'],
   'table-missing-headers': ['1.3.1'],
   'autoplay-media': ['1.4.2', '2.2.2'],
+  'media-no-captions': ['1.2.2', '1.2.3'],
   'redundant-role': ['4.1.2'],
   'invalid-aria-role': ['4.1.2'],
   'missing-aria-required': ['4.1.2'],
   'focus-outline-removed': ['2.4.7'],
+  'title-empty': ['2.4.2'],
+  'duplicate-id': ['4.1.1'],
+  'marquee-element': ['2.2.2'],
+  'missing-main-landmark': ['1.3.1'],
+  'placeholder-as-label': ['3.3.2'],
+  'missing-autocomplete': ['1.3.5'],
+  'non-semantic-navigation': ['1.3.1'],
+  'radio-missing-fieldset': ['1.3.1', '3.3.2'],
+  'required-not-indicated': ['3.3.2'],
 };
 
 /**
@@ -108,6 +122,62 @@ const fixSuggestions = {
   'focus-outline-removed': [
     'Do not remove focus outlines globally',
     'Provide custom visible focus styles if removing default',
+  ],
+  'title-empty': [
+    'Add descriptive title: <title>Page Name - Site Name</title>',
+    'Title should describe the page content',
+  ],
+  'duplicate-id': [
+    'Ensure all id attributes are unique',
+    'Duplicate IDs break ARIA relationships and form labels',
+  ],
+  'marquee-element': [
+    'Do not use <marquee> or <blink> elements',
+    'Use CSS animations with prefers-reduced-motion support',
+  ],
+  'media-no-captions': [
+    'Add <track> element for captions: <video><track kind="captions" src="captions.vtt"></video>',
+    'Or provide transcript link below media',
+  ],
+  'link-new-window-no-warning': [
+    'Add warning text: <a href="..." target="_blank">Link (opens in new window)</a>',
+    'Or use aria-label: <a href="..." target="_blank" aria-label="Link, opens in new window">',
+  ],
+  'missing-main-landmark': [
+    'Add <main> element to wrap primary content',
+    'There should be exactly one <main> per page',
+  ],
+  'placeholder-as-label': [
+    'Add proper label: <label for="name">Name</label><input id="name" placeholder="e.g. John">',
+    'Placeholders disappear on focus and are not read by all screen readers',
+  ],
+  'missing-autocomplete': [
+    'Add autocomplete: <input type="text" name="name" autocomplete="name">',
+    'For email: autocomplete="email", for credit card: autocomplete="cc-number"',
+  ],
+  'non-semantic-navigation': [
+    'Use <nav> element: <nav><a href="home.html">Home</a></nav>',
+    'Semantic elements improve accessibility',
+  ],
+  'radio-missing-fieldset': [
+    '<fieldset><legend>Choose option</legend><input type="radio">...</fieldset>',
+    'Group related radio buttons with fieldset and legend',
+  ],
+  'required-not-indicated': [
+    'Add visual indicator: <label>Email <span aria-hidden="true">*</span><span class="sr-only">required</span></label>',
+    'Or use aria-required: <input type="email" aria-required="true">',
+  ],
+  'link-non-descriptive': [
+    'Use descriptive text instead of "click here" or "read more"',
+    'Example: "Read our accessibility guide" instead of "Click here"',
+  ],
+  'missing-lang-foreign': [
+    'Add lang attribute to foreign language text: <p lang="fr">Bonjour</p>',
+    'Screen readers use lang to pronounce text correctly',
+  ],
+  'heading-hierarchy': [
+    'Follow heading hierarchy: h1 -> h2 -> h3 (do not skip levels)',
+    'Headings should not jump from h1 to h3',
   ],
 };
 
@@ -208,6 +278,48 @@ export async function analyzeHTML(content, filePath = 'unknown.html') {
     });
   }
 
+  // Check for empty or missing title
+  const titleMatch = content.match(/<title[^>]*>(.*?)<\/title>/is);
+  if (!titleMatch || !titleMatch[1].trim()) {
+    violations.push({
+      ruleId: 'title-empty',
+      severity: 'error',
+      line: getLineNumber(content.indexOf('<title')),
+      column: 1,
+      message: 'Page must have a non-empty <title> element',
+      wcag: violationToWCAG['title-empty'],
+      fix: fixSuggestions['title-empty'],
+    });
+  }
+
+  // Check for missing main landmark
+  if (!/<main[\s>]/i.test(content) && !/role=["']main["']/i.test(content)) {
+    violations.push({
+      ruleId: 'missing-main-landmark',
+      severity: 'error',
+      line: 1,
+      column: 1,
+      message: 'Page should have a <main> landmark element',
+      wcag: violationToWCAG['missing-main-landmark'],
+      fix: fixSuggestions['missing-main-landmark'],
+    });
+  }
+
+  // Check for marquee or blink elements
+  const marqueeRegex = /<(marquee|blink)[\s>]/gi;
+  let marqueeMatch;
+  while ((marqueeMatch = marqueeRegex.exec(content)) !== null) {
+    violations.push({
+      ruleId: 'marquee-element',
+      severity: 'error',
+      line: getLineNumber(marqueeMatch.index),
+      column: 1,
+      message: `<${marqueeMatch[1]}> element is deprecated and causes accessibility issues`,
+      wcag: violationToWCAG['marquee-element'],
+      fix: fixSuggestions['marquee-element'],
+    });
+  }
+
   const handler = new DomHandler((error, dom) => {
     if (error) {
       console.error('HTML parsing error:', error);
@@ -273,6 +385,53 @@ export async function analyzeHTML(content, filePath = 'unknown.html') {
                 fix: fixSuggestions['form-input-missing-label'],
               });
             }
+
+            // Check for placeholder used as label
+            if (attrs.placeholder && !hasLabel) {
+              violations.push({
+                ruleId: 'placeholder-as-label',
+                severity: 'error',
+                line: lineNumber,
+                column: 1,
+                message: 'Placeholder should not be used as a label replacement',
+                wcag: violationToWCAG['placeholder-as-label'],
+                fix: fixSuggestions['placeholder-as-label'],
+              });
+            }
+
+            // Check for missing autocomplete on personal info fields
+            const personalFields = ['email', 'name', 'tel', 'url', 'text'];
+            const personalNames = ['email', 'name', 'fullname', 'username', 'tel', 'phone', 'card', 'cardnumber', 'cc-', 'address', 'postal', 'country'];
+            if (personalFields.includes(attrs.type) || personalNames.some(field => attrs.name?.toLowerCase().includes(field))) {
+              if (!attrs.autocomplete) {
+                violations.push({
+                  ruleId: 'missing-autocomplete',
+                  severity: 'warning',
+                  line: lineNumber,
+                  column: 1,
+                  message: 'Personal info input should have autocomplete attribute',
+                  wcag: violationToWCAG['missing-autocomplete'],
+                  fix: fixSuggestions['missing-autocomplete'],
+                });
+              }
+            }
+
+            // Check for required fields without indication
+            if (attrs.required !== undefined) {
+              // This is a simplification - we'd need to check if there's a visual indicator
+              // For now, we'll just check if aria-required is also present
+              if (!attrs['aria-required']) {
+                violations.push({
+                  ruleId: 'required-not-indicated',
+                  severity: 'warning',
+                  line: lineNumber,
+                  column: 1,
+                  message: 'Required fields should have aria-required and visual indication',
+                  wcag: violationToWCAG['required-not-indicated'],
+                  fix: fixSuggestions['required-not-indicated'],
+                });
+              }
+            }
           }
 
           // Check buttons
@@ -311,6 +470,44 @@ export async function analyzeHTML(content, filePath = 'unknown.html') {
                 wcag: violationToWCAG['link-empty'],
                 fix: fixSuggestions['link-empty'],
               });
+            }
+
+            // Check for non-descriptive link text
+            if (hasContent && node.children) {
+              const textContent = node.children
+                .filter(child => child.type === 'text')
+                .map(child => child.data.trim())
+                .join(' ')
+                .toLowerCase();
+              const nonDescriptive = ['click here', 'read more', 'more', 'here', 'link'];
+              if (nonDescriptive.some(phrase => textContent === phrase)) {
+                violations.push({
+                  ruleId: 'link-non-descriptive',
+                  severity: 'warning',
+                  line: lineNumber,
+                  column: 1,
+                  message: `Non-descriptive link text: "${textContent}"`,
+                  wcag: violationToWCAG['link-non-descriptive'],
+                  fix: fixSuggestions['link-non-descriptive'],
+                });
+              }
+            }
+
+            // Check for links opening in new window without warning
+            if (attrs.target === '_blank') {
+              const hasWarning = attrs['aria-label']?.includes('new window') || 
+                                attrs['aria-label']?.includes('new tab');
+              if (!hasWarning) {
+                violations.push({
+                  ruleId: 'link-new-window-no-warning',
+                  severity: 'warning',
+                  line: lineNumber,
+                  column: 1,
+                  message: 'Links opening in new windows should warn users',
+                  wcag: violationToWCAG['link-new-window-no-warning'],
+                  fix: fixSuggestions['link-new-window-no-warning'],
+                });
+              }
             }
           }
 
@@ -420,6 +617,26 @@ export async function analyzeHTML(content, filePath = 'unknown.html') {
             }
           }
 
+          // Check video/audio for captions/transcript
+          if (tagName === 'video' || tagName === 'audio') {
+            // Check if there's a <track> child element
+            const hasTrack = node.children && node.children.some(child => 
+              child.type === 'tag' && child.name === 'track' && 
+              (child.attribs?.kind === 'captions' || child.attribs?.kind === 'subtitles')
+            );
+            if (!hasTrack) {
+              violations.push({
+                ruleId: 'media-no-captions',
+                severity: 'error',
+                line: lineNumber,
+                column: 1,
+                message: `${tagName === 'video' ? 'Video' : 'Audio'} must have captions or transcript`,
+                wcag: violationToWCAG['media-no-captions'],
+                fix: fixSuggestions['media-no-captions'],
+              });
+            }
+          }
+
           // Check for redundant roles
           if (attrs.role) {
             const implicitRole = implicitRoles[tagName];
@@ -476,6 +693,127 @@ export async function analyzeHTML(content, filePath = 'unknown.html') {
     }
 
     traverse(dom);
+
+    // Post-traversal checks
+    // Check for duplicate IDs
+    const idMap = new Map();
+    function collectIds(nodes) {
+      if (!nodes) return;
+      for (const node of nodes) {
+        if (node.type === 'tag' && node.attribs?.id) {
+          const id = node.attribs.id;
+          if (idMap.has(id)) {
+            violations.push({
+              ruleId: 'duplicate-id',
+              severity: 'error',
+              line: lineNumber,
+              column: 1,
+              message: `Duplicate ID "${id}" found`,
+              wcag: violationToWCAG['duplicate-id'],
+              fix: fixSuggestions['duplicate-id'],
+            });
+          } else {
+            idMap.set(id, true);
+          }
+        }
+        if (node.children) {
+          collectIds(node.children);
+        }
+      }
+    }
+    collectIds(dom);
+
+    // Check heading hierarchy
+    const headings = [];
+    function collectHeadings(nodes) {
+      if (!nodes) return;
+      for (const node of nodes) {
+        if (node.type === 'tag' && /^h[1-6]$/.test(node.name)) {
+          headings.push({
+            level: parseInt(node.name[1]),
+            line: lineNumber
+          });
+        }
+        if (node.children) {
+          collectHeadings(node.children);
+        }
+      }
+    }
+    collectHeadings(dom);
+
+    for (let i = 1; i < headings.length; i++) {
+      const prevLevel = headings[i - 1].level;
+      const currLevel = headings[i].level;
+      if (currLevel > prevLevel + 1) {
+        violations.push({
+          ruleId: 'heading-hierarchy',
+          severity: 'warning',
+          line: headings[i].line,
+          column: 1,
+          message: `Heading hierarchy skipped from h${prevLevel} to h${currLevel}`,
+          wcag: violationToWCAG['heading-hierarchy'],
+          fix: fixSuggestions['heading-hierarchy'],
+        });
+      }
+    }
+
+    // Check for radio buttons without fieldset
+    const radioInputs = [];
+    function collectRadios(nodes) {
+      if (!nodes) return;
+      for (const node of nodes) {
+        if (node.type === 'tag' && node.name === 'input' && node.attribs?.type === 'radio') {
+          radioInputs.push({ name: node.attribs.name, line: lineNumber });
+        }
+        if (node.children) {
+          collectRadios(node.children);
+        }
+      }
+    }
+    collectRadios(dom);
+
+    // Check if radio groups are wrapped in fieldsets
+    const radioGroups = new Map();
+    for (const radio of radioInputs) {
+      if (radio.name) {
+        if (!radioGroups.has(radio.name)) {
+          radioGroups.set(radio.name, []);
+        }
+        radioGroups.get(radio.name).push(radio.line);
+      }
+    }
+
+    for (const [name, lines] of radioGroups) {
+      if (lines.length > 1) {
+        // Check if there's a fieldset (simplified check)
+        if (!/<fieldset[^>]*>[\s\S]*?<input[^>]*type=["']?radio["']?[^>]*name=["']?${name}["']?/i.test(content)) {
+          violations.push({
+            ruleId: 'radio-missing-fieldset',
+            severity: 'warning',
+            line: lines[0],
+            column: 1,
+            message: `Radio button group "${name}" should be wrapped in <fieldset> with <legend>`,
+            wcag: violationToWCAG['radio-missing-fieldset'],
+            fix: fixSuggestions['radio-missing-fieldset'],
+          });
+        }
+      }
+    }
+
+    // Check for navigation links not in <nav>
+    const navPattern = /<div[^>]*>\s*(<a[^>]+href[^>]*>[^<]*<\/a>\s*){3,}/gi;
+    const navMatches = content.match(navPattern);
+    if (navMatches && !/<nav/i.test(content)) {
+      violations.push({
+        ruleId: 'non-semantic-navigation',
+        severity: 'warning',
+        line: getLineNumber(content.indexOf(navMatches[0])),
+        column: 1,
+        message: 'Multiple navigation links should be wrapped in <nav> element',
+        wcag: violationToWCAG['non-semantic-navigation'],
+        fix: fixSuggestions['non-semantic-navigation'],
+      });
+    }
   });
 
   const parser = new Parser(handler, {
