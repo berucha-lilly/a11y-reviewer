@@ -2,20 +2,20 @@
 
 This document lists the accessibility issues the analyzers detect. Each violation in the report includes a mapped WCAG reference and suggested fixes.
 
-Summary: analyzers run in a pipeline — regex fast-pass → hybrid routing → specific analyzers (ESLint/Babel/html/css). See the "Example violation output" section below for the normalized JSON schema. Note: the report file `.github/a11y-mcp/a11y-results.json` is overwritten on each run.
+Summary: analyzers run in a pipeline — hybrid routing (including a regex fast-pass) → specific analyzers (ESLint/Babel/html/css). See the "Example violation output" section below for the normalized JSON schema. Note: the report file `.github/a11y-mcp/a11y-results.json` is overwritten on each run.
 
-## Regex-based fast-path checks
+## Regex-based fast-pass checks
 The `regex-analyzer.js` implements a fast pattern-matching pass that catches a number of common issues across HTML/JSX/JS and CSS files. This pass runs first and is deliberately conservative: findings are quick to compute, may have less-precise locations, and can be re-evaluated by the deeper analyzers that run later.
 
 - `button-missing-accessible-name` — buttons with no visible text or `aria-label`
 - `link-non-descriptive` — links with non-descriptive text like "click here" or "read more"
 - `missing-h1` and `heading-level-skip` — missing top-level heading or skipped heading levels
 - `aria-labelledby-invalid` — `aria-labelledby` references a non-existent ID
-- `input-missing-label` — form inputs without labels (regex fast-path)
+- `input-missing-label` — form inputs without labels (regex fast-pass)
 - `duplicate-id` — duplicate `id` attributes found
 - `iframe-missing-title` — iframes without a `title` attribute
 
-CSS-specific fast-path checks:
+CSS-specific fast-pass checks:
 
 - `outline-none-no-alternative` — `outline: none` or `outline: 0` without an alternative focus indicator
 - `font-size-too-small` / `font-size-small` — very small font sizes detected in CSS
@@ -25,7 +25,7 @@ CSS-specific fast-path checks:
 - `pointer-events-none` — `pointer-events: none` on interactive selectors
 
 ## Routing
-The `hybrid-analyzer.js` file is responsible for routing files to the appropriate analyzer (regex fast-path, ESLint + jsx-a11y, Babel AST JS analyzer, html-analyzer, or css-analyzer). See `src/core/hybrid-analyzer.js` for routing logic and override points.
+The `hybrid-analyzer.js` file is responsible for routing files to the appropriate analyzer (regex fast-pass, ESLint + jsx-a11y, Babel AST JS analyzer, html-analyzer, or css-analyzer). See `src/core/hybrid-analyzer.js` for routing logic and override points.
 
 ## Analyzer details (workflow order)
 ### JSX/TSX Files (ESLint + jsx-a11y)
@@ -129,6 +129,7 @@ Below is an example of a normalized violation object as produced by the analyzer
 	"ruleId": "img-missing-alt",
 	"severity": "error",
 	"message": "Image elements must have an alt attribute",
+	"filePath": "src/components/Button.jsx",
 	"line": 12,
 	"column": 5,
 	"wcag": ["1.1.1"],

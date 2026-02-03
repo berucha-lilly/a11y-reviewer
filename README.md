@@ -8,17 +8,18 @@
 
 ## Table of Contents
 
-- [What it does](#-what-it-does)
-- [For Maintainers](#️-for-maintainers-a11y-mcp-repo-only)
-- [MCP Tools Reference](#-mcp-tools-reference)
-- [GitHub Actions Integration](#-github-actions-integration)
+- [What it does](#what-it-does)
+- [Architecture](#architecture)
+- [For Maintainers](#for-maintainers-a11y-mcp-repo-only)
+- [MCP Tools Reference](#mcp-tools-reference)
+- [GitHub Actions Integration](#github-actions-integration)
   - [Developer Integration Steps](#developer-integration-steps-in-your-app-repo)
   - [What Happens on Each PR](#what-happens-on-each-pr)
   - [Making Checks Required](#making-checks-required)
   - [Configuration](#configuration-a11yconfigjson)
-  - [Testing](#testing)
-- [Reference](#-reference)
-- [License](#-license)
+  - [Testing](#testing-your-integration)
+- [Reference](#reference)
+- [License](#license)
 
 ## ✅ What it does
 
@@ -33,7 +34,7 @@
 
 ### Detection Capabilities
 
-The analyzers detect a broad set of accessibility issues across source types (JSX/TSX, JS/TS, HTML/HTM, CSS/SCSS). For the full, detailed list of checks (including WCAG mappings and suggested fixes), see [DETECTION.md](DETECTION.md).
+The analyzers detect a broad set of accessibility issues across source types (JSX/TSX, JS/TS, HTML/HTM, CSS/SCSS). For the full, detailed list of checks (including WCAG mappings and suggested fixes), see [Detection Capabilities](docs/DETECTION.md).
 
 Short summary:
 - JSX/TSX: React-focused checks via `eslint-plugin-jsx-a11y` (alt text, ARIA, keyboard support, labels)
@@ -67,6 +68,16 @@ The tool uses a **hybrid analyzer** (`src/core/hybrid-analyzer.js`) that intelli
 - `src/core/css-analyzer.js` - 20+ violation types, two-pass analysis for context-aware checks
 - `src/core/js-analyzer.js` - 25+ violation types, AST traversal with pattern matching
 - `src/core/hybrid-analyzer.js` - Routing logic and ESLint integration
+
+## 🏗️ Architecture
+
+For a detailed overview of the system architecture, including pipeline diagrams and component relationships, see the **[Architecture Documentation](docs/ARCHITECTURE.md)**.
+
+Key highlights:
+- **Hybrid router (runs regex fast-pass)** → **Specialized analyzers** (ESLint/Babel/html/css)
+- Mermaid diagrams showing data flow and component interactions
+- Normalized JSON output schema for consistent reporting
+- GitHub Actions integration and local viewer components
 
 ## 🛠️ For Maintainers (a11y-mcp repo only)
 
@@ -383,6 +394,8 @@ You should see the bot comment with violations found.
 
 ## 📚 Reference
 
+- **[Architecture Documentation](docs/ARCHITECTURE.md)** - System architecture, pipeline diagrams, and component overview
+- **[Detection Capabilities](docs/DETECTION.md)** - Complete list of accessibility checks with WCAG mappings
 - **[WCAG 2.2 Guidelines](https://www.w3.org/WAI/WCAG22/quickref/)** - Official WCAG documentation
 
 ## 📄 License
