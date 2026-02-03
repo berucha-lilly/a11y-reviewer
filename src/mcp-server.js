@@ -174,7 +174,7 @@ class ProductionMCPServer {
         totalViolations: violations.length,
         errors: violations.filter(v => v.severity === 'error').length,
         warnings: violations.filter(v => v.severity === 'warning').length,
-        wcagCriteria: [...new Set(violations.flatMap(v => v.wcagCriteria || []))]
+        wcagCriteria: [...new Set(violations.flatMap(v => v.wcag || []))]
       }
     };
 

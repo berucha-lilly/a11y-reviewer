@@ -11,7 +11,28 @@ import { analyzeFileHybrid } from './core/hybrid-analyzer.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const rootDir = path.resolve(__dirname, '../..');
+function resolveRepoRoot() {
+  try {
+    const gitRoot = execSync('git rev-parse --show-toplevel', {
+      encoding: 'utf8',
+      cwd: process.cwd(),
+      stdio: ['ignore', 'pipe', 'ignore']
+    }).trim();
+    if (gitRoot) return gitRoot;
+  } catch {
+    // fall through
+  }
+
+  // Fallbacks: current working directory, then script's repo root
+  return process.cwd() || path.resolve(__dirname, '../..');
+}
+
+const rootDir = resolveRepoRoot();
+const defaultResultsPath = path.join(__dirname, 'a11y-results.json');
+const repoResultsDir = path.join(rootDir, '.github', 'a11y-mcp');
+const resultsPath = fs.existsSync(repoResultsDir)
+  ? path.join(repoResultsDir, 'a11y-results.json')
+  : defaultResultsPath;
 
 async function analyzePR() {
   try {
@@ -62,7 +83,7 @@ async function analyzePR() {
         },
         files: []
       };
-      fs.writeFileSync(path.join(__dirname, 'a11y-results.json'), JSON.stringify(results, null, 2));
+      fs.writeFileSync(resultsPath, JSON.stringify(results, null, 2));
       process.exit(0);
     }
 
@@ -116,7 +137,7 @@ async function analyzePR() {
       files: fileResults
     };
 
-    fs.writeFileSync(path.join(__dirname, 'a11y-results.json'), JSON.stringify(results, null, 2));
+    fs.writeFileSync(resultsPath, JSON.stringify(results, null, 2));
     console.log('\n✅ Analysis complete!');
     console.log(`📊 Total: ${totalViolations} violations (${totalErrors} errors, ${totalWarnings} warnings)`);
 

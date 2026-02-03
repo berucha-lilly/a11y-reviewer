@@ -10,7 +10,6 @@ import { ESLint } from 'eslint';
 import jsxA11y from 'eslint-plugin-jsx-a11y';
 import react from 'eslint-plugin-react';
 import babelParser from '@babel/eslint-parser';
-import eslintJs from '@eslint/js';
 import path from 'path';
 import { createRequire } from 'module';
 import { fileURLToPath } from 'url';
@@ -377,7 +376,7 @@ async function analyzeFileWithESLint(content, filePath) {
     const violations = messages
       .filter(msg => msg.ruleId && msg.ruleId.startsWith('jsx-a11y/'))
       .map(msg => ({
-        id: msg.ruleId,
+        ruleId: msg.ruleId,
         severity: msg.severity === 2 ? 'error' : 'warning',
         message: msg.message,
         description: msg.message,
@@ -385,7 +384,7 @@ async function analyzeFileWithESLint(content, filePath) {
         column: msg.column,
         endLine: msg.endLine,
         endColumn: msg.endColumn,
-        wcagCriteria: ruleToWCAG[msg.ruleId] || [],
+        wcag: ruleToWCAG[msg.ruleId] || [],
         fix: fixDescriptions[msg.ruleId] || 'Review WCAG 2.2 documentation',
         suggestions: fixSuggestions[msg.ruleId] || [
           'Review WCAG 2.2 documentation',
@@ -413,13 +412,13 @@ export async function analyzeFileHybrid(content, filePath = 'temp.jsx') {
     const violations = await analyzeHTML(content, filePath);
     // Transform to match ESLint format
     return violations.map(v => ({
-      id: v.ruleId,
+      ruleId: v.ruleId,
       severity: v.severity,
       message: v.message,
       description: v.message,
       line: v.line,
       column: v.column,
-      wcagCriteria: v.wcag || [],
+      wcag: v.wcag || [],
       fix: v.fix ? v.fix[0] : 'Review WCAG 2.2 documentation',
       suggestions: v.fix || ['Review WCAG 2.2 documentation'],
     }));
@@ -428,13 +427,13 @@ export async function analyzeFileHybrid(content, filePath = 'temp.jsx') {
     const violations = await analyzeCSS(content, filePath);
     // Transform to match ESLint format
     return violations.map(v => ({
-      id: v.ruleId,
+      ruleId: v.ruleId,
       severity: v.severity,
       message: v.message,
       description: v.message,
       line: v.line,
       column: v.column,
-      wcagCriteria: v.wcag || [],
+      wcag: v.wcag || [],
       fix: v.fix ? v.fix[0] : 'Review WCAG 2.2 documentation',
       suggestions: v.fix || ['Review WCAG 2.2 documentation'],
     }));
@@ -451,13 +450,13 @@ export async function analyzeFileHybrid(content, filePath = 'temp.jsx') {
       // Plain JavaScript/TypeScript - use JS analyzer for DOM patterns
       const violations = await analyzeJS(content, filePath);
       return violations.map(v => ({
-        id: v.ruleId,
+        ruleId: v.ruleId,
         severity: v.severity,
         message: v.message,
         description: v.message,
         line: v.line,
         column: v.column,
-        wcagCriteria: v.wcag || [],
+        wcag: v.wcag || [],
         fix: v.fix ? v.fix[0] : 'Review WCAG 2.2 documentation',
         suggestions: v.fix || ['Review WCAG 2.2 documentation'],
       }));

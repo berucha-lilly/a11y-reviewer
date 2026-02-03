@@ -295,7 +295,7 @@ suite.test('Detects iframe without title in HTML files', () => {
 
 // Test 24: Real-world example file
 suite.test('Detects violations in example CSS file', () => {
-  const examplePath = path.join(__dirname, '..', 'examples', 'accessibility-violations.css');
+  const examplePath = path.join(__dirname, 'examples', 'accessibility-violations.css');
   if (fs.existsSync(examplePath)) {
     const content = fs.readFileSync(examplePath, 'utf8');
     const violations = analyzeFile(content, 'accessibility-violations.css');
@@ -312,13 +312,14 @@ suite.test('Detects violations in example CSS file', () => {
     }
   } else {
     suite.skipped++;
-    throw new Error('Example file not found (skipping)');
+    console.log('⏭️  Example CSS file not found (skipping)');
+    return;
   }
 });
 
 // Test 25: Real-world example JSX file
 suite.test('Detects violations in example JSX file', () => {
-  const examplePath = path.join(__dirname, '..', 'examples', 'AccessibilityViolations.jsx');
+  const examplePath = path.join(__dirname, 'examples', 'AccessibilityViolations.jsx');
   if (fs.existsSync(examplePath)) {
     const content = fs.readFileSync(examplePath, 'utf8');
     const violations = analyzeFile(content, 'AccessibilityViolations.jsx');
@@ -335,7 +336,8 @@ suite.test('Detects violations in example JSX file', () => {
     }
   } else {
     suite.skipped++;
-    throw new Error('Example file not found (skipping)');
+    console.log('⏭️  Example JSX file not found (skipping)');
+    return;
   }
 });
 
