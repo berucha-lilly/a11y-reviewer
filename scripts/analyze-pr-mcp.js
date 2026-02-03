@@ -66,7 +66,7 @@ async function analyzePR() {
       process.exit(0);
     }
 
-    console.log(`📊 Analyzing ${relevantFiles.length} files with ESLint + jsx-a11y...`);
+    console.log(`📊 Analyzing ${relevantFiles.length} files for accessibility violations...`);
 
     let totalViolations = 0;
     let totalErrors = 0;
